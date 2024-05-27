@@ -3,11 +3,16 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useAccount } from "wagmi";
-import { getBalance, readContract, writeContract, waitForTransactionReceipt } from '@wagmi/core'
+import {
+	getBalance,
+	readContract,
+	writeContract,
+	waitForTransactionReceipt,
+} from "@wagmi/core";
 import { erc20Abi, parseUnits } from "viem";
 import { wagmiConfig } from "../config";
 
-const DOC_ADDRESS_TESTNET = "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0"
+const DOC_ADDRESS_TESTNET = "0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0";
 
 const Home: NextPage = () => {
 	const account = useAccount();
@@ -21,65 +26,66 @@ const Home: NextPage = () => {
 		try {
 			if (!account || !account.address) throw new Error("No account");
 
-      const rbtcBalance = await getBalance(wagmiConfig, {
-        address: account.address,
-      })
-      console.log("🚀 ~ getUserBalance ~ rbtcBalance:", rbtcBalance)
+			const rbtcBalance = await getBalance(wagmiConfig, {
+				address: account.address,
+			});
+			console.log("🚀 ~ getUserBalance ~ rbtcBalance:", rbtcBalance);
 
-      const docBalance = await getBalance(wagmiConfig, {
-        address: account.address,
-        token: DOC_ADDRESS_TESTNET,
-      })
-      console.log("🚀 ~ getUserBalance ~ docBalance:", docBalance)
+			const docBalance = await getBalance(wagmiConfig, {
+				address: account.address,
+				token: DOC_ADDRESS_TESTNET,
+			});
+			console.log("🚀 ~ getUserBalance ~ docBalance:", docBalance);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-  const readDocContract = async () => {
-    try {
-      console.log('Reading DOC Contract')
-      const docSupply = await readContract(wagmiConfig, {
-        abi: erc20Abi,
-        address: DOC_ADDRESS_TESTNET,
-        functionName: 'totalSupply',
-        args: [],
-      })
-      const docDecimals = await readContract(wagmiConfig, {
-        abi: erc20Abi,
-        address: DOC_ADDRESS_TESTNET,
-        functionName: 'decimals',
-        args: [],
-      })
-      console.log("🚀 ~ readDocContract ~ docSupply:", Number(docSupply)/10**docDecimals)
+	const readDocContract = async () => {
+		try {
+			console.log("Reading DOC Contract");
+			const docSupply = await readContract(wagmiConfig, {
+				abi: erc20Abi,
+				address: DOC_ADDRESS_TESTNET,
+				functionName: "totalSupply",
+				args: [],
+			});
+			const docDecimals = await readContract(wagmiConfig, {
+				abi: erc20Abi,
+				address: DOC_ADDRESS_TESTNET,
+				functionName: "decimals",
+				args: [],
+			});
+			console.log(
+				"🚀 ~ readDocContract ~ docSupply:",
+				Number(docSupply) / 10 ** docDecimals
+			);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-    } catch (error) {
-      console.error(error)
-    }
-  }
+	const transferDOC = async () => {
+		console.log("Transfering DOC");
+		try {
+			const DESTINATION_ACCOUNT = "0x30Cd379534cE6C15eC08f00FF156166A2C7D1541";
+			const amount = 10;
+			const parsedAmount = parseUnits(amount.toString(), 18);
 
-  const transferDOC = async () => {
-    console.log('Transfering DOC')
-    try {
-      const DESTINATION_ACCOUNT = "0x30Cd379534cE6C15eC08f00FF156166A2C7D1541"
-      const amount = 10
-      const parsedAmount = parseUnits(amount.toString(), 18)
-
-      const transferTransaction = await writeContract(wagmiConfig, {
-        abi: erc20Abi,
-        address: DOC_ADDRESS_TESTNET,
-        functionName: 'transfer',
-        args: [DESTINATION_ACCOUNT, parsedAmount],
-      })
-      const txReceipt = await waitForTransactionReceipt(wagmiConfig, {
-        hash: transferTransaction
-      })
-      console.log("🚀 ~ transferDOC ~ txReceipt:", txReceipt)
-
-    } catch (error) {
-      console.error(error)
-    }
-  }
+			const transferTransaction = await writeContract(wagmiConfig, {
+				abi: erc20Abi,
+				address: DOC_ADDRESS_TESTNET,
+				functionName: "transfer",
+				args: [DESTINATION_ACCOUNT, parsedAmount],
+			});
+			const txReceipt = await waitForTransactionReceipt(wagmiConfig, {
+				hash: transferTransaction,
+			});
+			console.log("🚀 ~ transferDOC ~ txReceipt:", txReceipt);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	return (
 		<div className={styles.container}>
@@ -111,12 +117,8 @@ const Home: NextPage = () => {
 					<button onClick={getUserBalance}>
 						Fetch user balance and DOC balance
 					</button>
-					<button onClick={readDocContract}>
-						readDocContract
-					</button>
-					<button onClick={transferDOC}>
-						transfer DOC
-					</button>
+					<button onClick={readDocContract}>readDocContract</button>
+					<button onClick={transferDOC}>transfer DOC</button>
 				</div>
 			</main>
 		</div>
